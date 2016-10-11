@@ -1,0 +1,230 @@
+---
+title: "DATA_607_Project_2"
+author: "Md Jalal Uddin"
+date: "October 9, 2016"
+output: pdf_document
+---
+
+
+DATA Set 1:
+
+```{r}
+# Load packages 
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(knitr)
+library(ggplot2)
+
+
+```
+
+
+```{r}
+BPL_Data <- read.csv("C:/Users/sql_ent_svc/Google Drive/DATA_607/Project_2/BPL.csv", header = TRUE,  stringsAsFactors = FALSE )
+head(BPL_Data)
+
+#data Source:http://www.espncricinfo.com/bangladesh-premier-league-2015-16/engine/series/921139.html?view=pointstable
+
+```
+
+Rearrange the data with new column name using select statement
+```{r}
+BPL_Data1<- BPL_Data %>%
+select(Teams,Match, Won, PTS, For, Against) %>%
+rename(BPL_Teams = Teams, Match_Played=Match, Match_Won = Won, Total_Points = PTS, Own_score = For, score_Against= Against)
+BPL_Data1
+
+```
+
+By using select statement again I am selecting the only those variable whose we need for my analysis
+```{r}
+BPL_Score_Points <- BPL_Data1%>%
+select(BPL_Teams, Match_Won, Own_score, score_Against)
+BPL_Score_Points
+
+```
+
+Selecting only 3 variable
+```{r}
+BPL_Score_Points1 <- BPL_Score_Points%>%
+select(BPL_Teams, Own_score, score_Against)
+BPL_Score_Points1
+
+```
+ 
+ finding summary of BPL_Score_Points1 data
+ 
+```{r}
+summary(BPL_Score_Points1)
+```
+
+
+Rearrange data using gather statement
+```{r}
+BPL_Score_Points3 <- gather(BPL_Score_Points1, "Team_Score_Types","Scores", 2:3)
+BPL_Score_Points3
+
+```
+
+Creating a geomatric bar plot by using ggplot
+```{r}
+ggplot(data = BPL_Score_Points3, aes(x = BPL_Teams, y = Scores, fill = Team_Score_Types))+ geom_bar(stat="identity", position="dodge") + ggtitle("Team score for own and against") + ylab("scores") + coord_flip()
+
+#source: http://docs.ggplot2.org/0.9.3.1/geom_bar.html
+
+```
+
+
+DATA Set 2:
+
+```{r}
+Animal_Data <- read.csv("C:/Users/sql_ent_svc/Google Drive/DATA_607/Project_2/Animal_Sleep.csv", header = TRUE, sep = "\t", stringsAsFactors = TRUE )
+head(Animal_Data)
+
+#data Source:http://www.statsci.org/data/general/sleep.txt
+
+```
+
+Rearrange the data by using select statement
+```{r}
+Animal_Data1 <- Animal_Data%>%
+select(Species, BodyWt, BrainWt, TotalSleep,LifeSpan, Danger)
+head(Animal_Data1)
+
+```
+
+we can find mean of a specific variable or column by using followoing mean function
+```{r}
+mean(Animal_Data1$BodyWt)
+
+```
+
+Finding correlation of different variables 
+```{r}
+(Cor.BodyWt_BrainWt <- cor.test( Animal_Data1$BodyWt,Animal_Data1$BrainWt))
+(Cor.BodyWt_LifeSpan <- cor.test( Animal_Data1$BodyWt,Animal_Data1$LifeSpan))
+(Cor.TotalSleep_BrainWt <- cor.test( Animal_Data1$TotalSleep,Animal_Data1$BrainWt))
+(Cor.LifeSpan_BrainWt <- cor.test( Animal_Data1$LifeSpan,Animal_Data1$BrainWt))
+
+```
+
+Here we can see variables Bodywt and BrainWt have very strong positive relationship by seeing the correlation coefficient between them. 
+
+Finding Regression by using following statement
+```{r}
+Reg_BodyWt_BrainWt <- lm(BodyWt~BrainWt+LifeSpan+Danger, data=Animal_Data1)
+summary(Reg_BodyWt_BrainWt)
+
+```
+
+Rearrange data selecting only 3 variable for my analysis
+```{r}
+Animal_Data2 <- Animal_Data1%>%
+select(Species, BodyWt, BrainWt)
+head(Animal_Data2)
+```
+
+rearange data using gather function
+```{r}
+Animal_Data3 <- gather(Animal_Data2, "weight_Types","weight", 2:3)
+head(Animal_Data3)
+
+
+```
+
+
+finding the geomatric bar plot using ggplot
+```{r}
+ggplot(data = Animal_Data3, aes(x = Species, y = weight, fill = weight_Types))+ geom_bar(stat="identity", position="dodge") + ggtitle("Body and brain weight for different Species") + ylab("weight") + coord_flip()
+
+```
+
+
+
+DATA SEt 3:
+
+```{r}
+Pima_Indian_Data <- read.csv("C:/Users/sql_ent_svc/Google Drive/DATA_607/Project_2/Pima_Indian_diabetes_data_set.csv", header = FALSE, sep = "," , stringsAsFactors = FALSE)
+head(Pima_Indian_Data)
+
+#data Source: http://archive.ics.uci.edu/ml/datasets/Pima+Indians+Diabetes
+
+
+```
+
+Rearrange the data set by changing the variable name/column name by folloing statement
+
+```{r}
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V1"] <- "Number_of_Times_Pregnant" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V2"] <- "Plasma_glucose" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V3"] <- "Diastolic_Pressure" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V4"] <- "Triceps_skin_thickness" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V5"] <- "Serum_insulin" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V6"] <- "BMI" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V7"] <- "Pedigree_function" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V8"] <- "Age" 
+names(Pima_Indian_Data)[names(Pima_Indian_Data) == "V9"] <- "Class_variable" 
+
+head(Pima_Indian_Data)
+
+```
+
+
+Arranging the data to see who has hightest BMI
+
+```{r}
+Pima_Indian_Data1 <- Pima_Indian_Data %>% 
+           select(Number_of_Times_Pregnant,Plasma_glucose, Diastolic_Pressure, BMI, Age) 
+
+head(Pima_Indian_Data1)
+
+
+```
+
+Finding the correlation between different variables
+
+```{r}
+
+(Cor.BMI_Age <- cor.test( Pima_Indian_Data1$BMI,Pima_Indian_Data1$Age))
+(Cor.BMI_Diastolic_Pressure <- cor.test( Pima_Indian_Data1$BMI,Pima_Indian_Data1$Diastolic_Pressure))
+(Cor.Age_Diastolic_Pressure <- cor.test( Pima_Indian_Data1$Age,Pima_Indian_Data1$Diastolic_Pressure))
+(Cor.Age_Diastolic_Plasma_glucose <- cor.test( Pima_Indian_Data1$Plasma_glucose ,Pima_Indian_Data1$Diastolic_Pressure))
+(Cor.BMI_Plasma_glucose <- cor.test( Pima_Indian_Data1$BMI,Pima_Indian_Data1$Plasma_glucose))
+
+```
+
+finding Regression 
+```{r}
+Reg_Plasma_glucose <- lm(Plasma_glucose~Diastolic_Pressure+Age+BMI, data=Pima_Indian_Data1)
+summary(Reg_Plasma_glucose)
+
+```
+
+Selecting only 3 variables for my analysis
+
+```{r}
+Pima_Indian_Data2 <- Pima_Indian_Data1%>%
+select(Number_of_Times_Pregnant, Diastolic_Pressure, BMI)
+head(Pima_Indian_Data2)
+
+
+```
+
+rearrange data using gather function
+```{r}
+Pima_Indian_Data3 <- gather(Pima_Indian_Data2, "pressure_BMI","pressure", 2:3)
+head(Pima_Indian_Data3)
+
+```
+
+finding geomaric bar plot using ggplot
+```{r}
+ggplot(data = Pima_Indian_Data3, aes(x = Number_of_Times_Pregnant, y = pressure, fill =  pressure_BMI))+ geom_bar(stat="identity", position="dodge") + ggtitle("Pregnancy, pressure and BMI") + ylab("Pressure") + coord_flip()
+
+
+```
+
+
+
